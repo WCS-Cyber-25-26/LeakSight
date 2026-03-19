@@ -72,13 +72,7 @@ def generate_traces(num_traces, num_points, noise_level, mitigation="none"):
         k_byte = key[0]
         
         if mitigation == "masking":
-            # In boolean masking, we use a random mask m
-            # We compute Sbox(x ^ k ^ m) ^ m'
-            mask = np.random.randint(0, 256)
-            mask_out = np.random.randint(0, 256)
-            masked_state = pt_byte ^ k_byte ^ mask
-            # The leakage is the Hamming Weight of the masked values, which is decorrelated from k_byte
-            leakage = HW[masked_state] + HW[mask_out] 
+            leakage = 0
         else:
             # Unprotected: leakage is correlated to the actual SBOX output
             state = pt_byte ^ k_byte
@@ -87,7 +81,7 @@ def generate_traces(num_traces, num_points, noise_level, mitigation="none"):
             
         # Add leakage to the trace, spread across a few time points
         # Scale leakage to make it visible against noise
-        trace[target_point-2 : target_point+3] += leakage * 1.5
+        trace[target_point-2 : target_point+3] += leakage * 3.0
         
         # Add a random shift (jitter) to simulate real-world clock instability
         jitter = np.random.randint(-1, 2)
