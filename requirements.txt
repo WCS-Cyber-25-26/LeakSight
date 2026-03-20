@@ -1,1 +1,7 @@
-# Add Python dependencies here
+numpy
+pandas
+scikit-learn
+streamlit
+plotly
+tqdm
+torch
