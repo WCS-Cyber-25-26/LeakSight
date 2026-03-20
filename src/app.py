@@ -81,7 +81,27 @@ def load_model(model_name):
     config = MODEL_CONFIGS[model_name]
     if config["type"] == "sklearn":
         with open(config["model_path"], "rb") as f:
-            return pickle.load(f)
+            model = pickle.load(f)
+
+        # Compatibility: older/full model artifacts may be pickled from scikit-learn versions
+        # where LogisticRegression stores `multi_class` differently. Ensure attribute exists.
+        try:
+            from sklearn.linear_model import LogisticRegression
+        except Exception:
+            LogisticRegression = None
+
+        def _ensure_multi_class(obj):
+            if LogisticRegression is not None and isinstance(obj, LogisticRegression):
+                if not hasattr(obj, "multi_class"):
+                    obj.multi_class = "auto"
+
+        if hasattr(model, "named_steps"):
+            for step in model.named_steps.values():
+                _ensure_multi_class(step)
+        else:
+            _ensure_multi_class(model)
+
+        return model
 
     import torch
     from models.cnn_architecture import CNN1DLeakDetector
