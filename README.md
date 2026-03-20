@@ -22,6 +22,43 @@ You can think of side-channel leakage like overhearing a keyboard instead of rea
 
 In LeakSight, each trace is a vector of 100 power samples. Vulnerable traces contain a leakage spike around the S-Box processing window.
 
+## AES Vulnerable vs Secure Comparison
+
+This project compares two AES implementation conditions from a side-channel perspective.
+
+### Vulnerable AES (Unprotected)
+
+- Mitigation mode: `none`
+- Leakage behavior: secret-dependent intermediate values are directly reflected in power consumption.
+- Trace shape: clearer, structured spike around the target operation window.
+- Security impact: attacker can correlate power measurements with processed secret-dependent values.
+- Label in dataset: `1` (Vulnerable)
+
+### Secure AES (Mitigated)
+
+Secure traces come from two mitigation strategies:
+
+1. Masking
+- Mitigation mode: `masking`
+- Leakage behavior: secret correlation is removed in the simulator.
+- Trace shape: flatter around leakage window, mostly baseline noise.
+
+2. Noise Injection
+- Mitigation mode: `noise_injection`
+- Leakage behavior: leakage is obscured by amplified random noise.
+- Trace shape: noisier signal where leak patterns are harder to isolate.
+
+Both secure variants are labeled as:
+
+- Label in dataset: `0` (Secure/Mitigated)
+
+### Why The Graphs Look Different
+
+- Vulnerable traces preserve a learnable leak signal near the S-Box timing window.
+- Secure traces either remove that signal (masking) or drown it out (noise injection).
+
+This difference is exactly what the models learn to classify in LeakSight.
+
 ## Core Concepts Used
 
 ### 1) Leakage Injection in Traces
